@@ -20,18 +20,32 @@ enum AttendanceStatus {
 
 model User {
   id          Int      @id @default(autoincrement())
+
   firstName   String
   lastName    String
   email       String   @unique
   password    String
+
   role        Role     @default(MEMBER)
   isActive    Boolean  @default(true)
+ isDeleted Boolean @default(false)
+  // Profil
+  phone       String?
+  birthDate   DateTime?
+  school      String?
+  position    String?
+  address     String?
+  instagram   String?
+  facebook    String?
+  photo       String?
+  description String?
+
   createdAt   DateTime @default(now())
 
   attendances Attendance[]
   fees        MembershipFee[]
+  
 }
-
 model Event {
   id          Int      @id @default(autoincrement())
   title       String
@@ -47,22 +61,34 @@ model Attendance {
   id       Int                @id @default(autoincrement())
   status   AttendanceStatus
 
+  reason        String?
+  registeredAt  DateTime @default(now())
+  cancelledAt   DateTime?
+
   userId   Int
   eventId  Int
 
-  user      User  @relation(fields: [userId], references: [id])
-  event     Event @relation(fields: [eventId], references: [id])
+  user     User  @relation(fields: [userId], references: [id])
+  event    Event @relation(fields: [eventId], references: [id])
 
   @@unique([userId, eventId])
 }
 
 model MembershipFee {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   month     Int
   year      Int
-  paid      Boolean  @default(false)
+  amount    Float     @default(0)
+  paid      Boolean   @default(false)
   paidAt    DateTime?
+  dueDate   DateTime?
+  createdAt DateTime  @default(now())
 
-  userId    Int
-  user       User @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+model ClubSetting {
+  id                  Int      @id @default(1)
+  membershipFeeAmount Float    @default(0)
+  updatedAt           DateTime @updatedAt
 }

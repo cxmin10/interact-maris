@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
 const {
   createUser,
   findUserByEmail,
@@ -7,7 +8,12 @@ const {
 
 exports.register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+    } = req.body;
 
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({
@@ -15,7 +21,18 @@ exports.register = async (req, res) => {
       });
     }
 
-    const existingUser = await findUserByEmail(email);
+    if (password.length < 6) {
+      return res.status(400).json({
+        message:
+          "Parola trebuie să aibă cel puțin 6 caractere.",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await findUserByEmail(
+      normalizedEmail
+    );
 
     if (existingUser) {
       return res.status(409).json({
@@ -26,25 +43,30 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await createUser({
-      firstName,
-      lastName,
-      email,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
+      role: "MEMBER",
+      isActive: false,
     });
 
-    res.status(201).json({
-      message: "Utilizator creat cu succes!",
+    return res.status(201).json({
+      message:
+        "Contul a fost creat și așteaptă aprobarea administratorului.",
       user: {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        role: user.role,
+        isActive: user.isActive,
       },
     });
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Eroare la crearea utilizatorului.",
     });
   }
@@ -54,7 +76,17 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await findUserByEmail(email);
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Emailul și parola sunt obligatorii.",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await findUserByEmail(
+      normalizedEmail
+    );
 
     if (!user) {
       return res.status(401).json({
@@ -62,7 +94,10 @@ exports.login = async (req, res) => {
       });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!passwordMatch) {
       return res.status(401).json({
@@ -70,10 +105,19 @@ exports.login = async (req, res) => {
       });
     }
 
+    if (!user.isActive) {
+      return res.status(403).json({
+        message:
+          "Contul tău așteaptă aprobarea administratorului.",
+        pendingApproval: true,
+      });
+    }
+
     const token = jwt.sign(
       {
         id: user.id,
         email: user.email,
+        role: user.role,
       },
       process.env.JWT_SECRET,
       {
@@ -81,7 +125,7 @@ exports.login = async (req, res) => {
       }
     );
 
-    res.json({
+    return res.json({
       message: "Autentificare reușită!",
       token,
       user: {
@@ -89,12 +133,14 @@ exports.login = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        role: user.role,
+        isActive: user.isActive,
       },
     });
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Eroare la autentificare.",
     });
   }

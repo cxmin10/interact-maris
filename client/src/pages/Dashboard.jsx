@@ -1,45 +1,229 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import api from "../api/axios";
+
 export default function Dashboard() {
-  return (
-    <main className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="mb-8 text-4xl font-bold text-blue-700">
-        Bun venit în contul tău 👋
-      </h1>
+  const user = JSON.parse(localStorage.getItem("user"));
 
-      <div className="grid gap-6 md:grid-cols-3">
-        
-        <div className="rounded-2xl bg-white p-6 shadow-lg">
-          <h2 className="text-xl font-bold text-gray-700">
-            Cotizație
-          </h2>
+  const [events, setEvents] = useState([]);
+  const [fees, setFees] = useState([]);
+  const [attendances, setAttendances] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
 
-          <p className="mt-4 text-2xl font-bold text-green-600">
-            Plătită ✓
-          </p>
-        </div>
+  useEffect(() => {
+    loadDashboard();
+  }, []);
 
+  async function loadDashboard() {
+    try {
+      setLoading(true);
+      setMessage("");
 
-        <div className="rounded-2xl bg-white p-6 shadow-lg">
-          <h2 className="text-xl font-bold text-gray-700">
-            Absențe
-          </h2>
+      const [
+        eventsResponse,
+        feesResponse,
+        attendancesResponse,
+      ] = await Promise.all([
+        api.get("/events"),
+        api.get(`/fees/user/${user.id}`),
+        api.get(`/attendance/user/${user.id}`),
+      ]);
 
-          <p className="mt-4 text-2xl font-bold text-red-500">
-            2
-          </p>
-        </div>
+      setEvents(eventsResponse.data || []);
+      setFees(feesResponse.data || []);
+      setAttendances(attendancesResponse.data || []);
+    } catch (error) {
+      console.error(error);
 
+      setMessage(
+        error.response?.data?.message ||
+          "Dashboard-ul nu a putut fi încărcat."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
 
-        <div className="rounded-2xl bg-white p-6 shadow-lg">
-          <h2 className="text-xl font-bold text-gray-700">
-            Evenimente viitoare
-          </h2>
-
-          <p className="mt-4 text-gray-600">
-            3 evenimente programate
-          </p>
-        </div>
-
+  if (loading) {
+    return (
+      <div className="py-20 text-center text-lg text-gray-500">
+        Se încarcă dashboard-ul...
       </div>
+    );
+  }
+
+  const now = new Date();
+
+  const upcomingEvents = events
+    .filter((event) => new Date(event.date) >= now)
+    .sort(
+      (firstEvent, secondEvent) =>
+        new Date(firstEvent.date) -
+        new Date(secondEvent.date)
+    );
+
+  const nextEvents = upcomingEvents.slice(0, 3);
+
+  const paidFees = fees.filter((fee) => fee.paid);
+  const unpaidFees = fees.filter((fee) => !fee.paid);
+
+  const presentCount = attendances.filter(
+    (attendance) =>
+      attendance.status === "PRESENT" &&
+      !attendance.cancelledAt
+  ).length;
+
+  const excusedCount = attendances.filter(
+    (attendance) => attendance.status === "EXCUSED"
+  ).length;
+
+  const absentCount = attendances.filter(
+    (attendance) => attendance.status === "ABSENT"
+  ).length;
+
+  return (
+    <main className="mx-auto max-w-7xl px-6 py-12">
+      <div className="mb-10">
+        <h1 className="text-4xl font-bold text-blue-800">
+          Bun venit, {user?.firstName}!
+        </h1>
+
+        <p className="mt-2 text-gray-500">
+          Aici găsești situația contului tău Interact Maris.
+        </p>
+      </div>
+
+      {message && (
+        <div className="mb-7 rounded-xl bg-red-100 p-4 font-medium text-red-700">
+          {message}
+        </div>
+      )}
+
+      <div className="mb-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="rounded-2xl bg-blue-700 p-6 text-white shadow-xl">
+          <p className="text-sm uppercase tracking-wider text-blue-200">
+            Evenimente viitoare
+          </p>
+
+          <p className="mt-4 text-5xl font-bold">
+            {upcomingEvents.length}
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-green-600 p-6 text-white shadow-xl">
+          <p className="text-sm uppercase tracking-wider text-green-100">
+            Cotizații plătite
+          </p>
+
+          <p className="mt-4 text-5xl font-bold">
+            {paidFees.length}
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-red-600 p-6 text-white shadow-xl">
+          <p className="text-sm uppercase tracking-wider text-red-100">
+            Cotizații restante
+          </p>
+
+          <p className="mt-4 text-5xl font-bold">
+            {unpaidFees.length}
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-emerald-600 p-6 text-white shadow-xl">
+          <p className="text-sm uppercase tracking-wider text-emerald-100">
+            Participări
+          </p>
+
+          <p className="mt-4 text-5xl font-bold">
+            {presentCount}
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-yellow-500 p-6 text-white shadow-xl">
+          <p className="text-sm uppercase tracking-wider text-yellow-100">
+            Absențe motivate
+          </p>
+
+          <p className="mt-4 text-5xl font-bold">
+            {excusedCount}
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-orange-600 p-6 text-white shadow-xl">
+          <p className="text-sm uppercase tracking-wider text-orange-100">
+            Absențe nemotivate
+          </p>
+
+          <p className="mt-4 text-5xl font-bold">
+            {absentCount}
+          </p>
+        </div>
+      </div>
+
+      <section className="rounded-3xl bg-white p-8 shadow-xl">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold">
+              Următoarele evenimente
+            </h2>
+
+            <p className="mt-1 text-gray-500">
+              Evenimentele care urmează în club.
+            </p>
+          </div>
+
+          <Link
+            to="/events"
+            className="rounded-xl bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800"
+          >
+            Vezi toate evenimentele
+          </Link>
+        </div>
+
+        {nextEvents.length === 0 ? (
+          <div className="rounded-2xl bg-gray-50 p-8 text-center text-gray-500">
+            Nu există evenimente viitoare.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {nextEvents.map((event) => (
+              <article
+                key={event.id}
+                className="rounded-2xl border border-gray-200 p-5"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-blue-800">
+                      {event.title}
+                    </h3>
+
+                    <p className="mt-2 text-gray-600">
+                      {new Date(event.date).toLocaleString(
+                        "ro-RO",
+                        {
+                          dateStyle: "long",
+                          timeStyle: "short",
+                        }
+                      )}
+                    </p>
+
+                    <p className="mt-1 text-gray-500">
+                      {event.location ||
+                        "Locație nespecificată"}
+                    </p>
+                  </div>
+
+                  <span className="rounded-full bg-blue-100 px-4 py-2 font-bold text-blue-700">
+                    {event.participantsCount ?? 0} participanți
+                  </span>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }
