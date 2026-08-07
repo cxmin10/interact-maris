@@ -1,11 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const authRoutes = require("./src/routes/auth.routes");
 const eventRoutes = require("./src/routes/event.routes");
-const attendanceRoutes = require(
-  "./src/routes/attendance.routes"
-);
+const attendanceRoutes = require("./src/routes/attendance.routes");
 const membershipFeeRoutes = require(
   "./src/routes/membershipFee.routes"
 );
@@ -22,12 +21,14 @@ const {
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
-app.get("/", (req, res) => {
-  res.send("Server Interact Maris funcționează!");
-});
+app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
@@ -36,9 +37,22 @@ app.use("/api/fees", membershipFeeRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/profile", profileRoutes);
 
-const PORT = 5000;
+const clientDistPath = path.join(
+  __dirname,
+  "../client/dist"
+);
 
-app.listen(PORT, () => {
+app.use(express.static(clientDistPath));
+
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(clientDistPath, "index.html")
+  );
+});
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server pornit pe portul ${PORT}`);
 
   startMembershipFeeScheduler();
