@@ -167,7 +167,7 @@ export default function Home() {
             {[
               ["Acasă", "#acasa"],
               ["Despre noi", "#despre"],
-              ["Proiecte", "#proiecte"],
+             
               ["Galerie", "#galerie"],
               ["Contact", "#contact"],
             ].map(([label, href], index) => (
@@ -493,73 +493,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section
-        id="proiecte"
-        className="mx-auto max-w-[1400px] px-6 py-24 lg:px-12 lg:py-32"
-      >
-        <motion.div
-          variants={reveal}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mb-16 max-w-3xl"
-        >
-          <p className="text-xs font-bold uppercase tracking-[0.35em] text-[#17458f]">
-            Implicare
-          </p>
-          <h2
-            className="mt-5 text-5xl font-medium md:text-6xl"
-            style={{ fontFamily: '"Playfair Display", serif' }}
-          >
-            Proiecte care lasă urme
-          </h2>
-        </motion.div>
-
-        <div className="grid gap-7 md:grid-cols-3">
-          {projects.map((project, index) => (
-            <motion.div
-              key={project.number}
-              initial={{ opacity: 0, y: 55, rotateY: index % 2 ? 8 : -8 }}
-              whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ delay: 0.12 * index, duration: 0.75 }}
-            >
-              <TiltCard className="h-full">
-                <article
-                  className="group h-full rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm transition duration-300 hover:shadow-2xl"
-                  style={{ transformStyle: "preserve-3d" }}
-                >
-                  <p
-                    className="text-6xl font-semibold text-[#17458f]/10"
-                    style={{ transform: "translateZ(45px)" }}
-                  >
-                    {project.number}
-                  </p>
-
-                  <div style={{ transform: "translateZ(30px)" }}>
-                    <p className="mt-8 text-xs font-bold uppercase tracking-[0.3em] text-[#17458f]">
-                      {project.category}
-                    </p>
-                    <h3 className="mt-4 text-2xl font-semibold">
-                      {project.title}
-                    </h3>
-                    <p className="mt-5 leading-7 text-slate-600">
-                      {project.description}
-                    </p>
-                    <button className="mt-8 inline-flex items-center gap-2 font-semibold text-[#17458f]">
-                      Descoperă proiectul
-                      <ArrowRight
-                        size={18}
-                        className="transition group-hover:translate-x-2"
-                      />
-                    </button>
-                  </div>
-                </article>
-              </TiltCard>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      
 
       <section
         id="galerie"
@@ -767,7 +701,7 @@ export default function Home() {
 
           <div className="flex flex-wrap gap-6 text-sm text-white/70">
             <a href="#despre">Despre noi</a>
-            <a href="#proiecte">Proiecte</a>
+           
             <a href="#galerie">Galerie</a>
             <Link to="/login">Platformă</Link>
           </div>
