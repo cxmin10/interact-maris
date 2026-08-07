@@ -31,6 +31,12 @@ app.use(
 );
 
 app.use(express.json());
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "Interact Maris API funcționează",
+  });
+});
 
 // API
 app.use("/api/auth", authRoutes);
