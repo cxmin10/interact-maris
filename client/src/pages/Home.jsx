@@ -144,14 +144,17 @@ export default function Home() {
       >
         <div className="mx-auto flex max-w-[1500px] items-center justify-between px-6 py-5 lg:px-12">
           <Link to="/" className="flex items-center gap-3 text-white">
-            <motion.div
-              whileHover={{ rotateY: 180 }}
-              transition={{ duration: 0.65 }}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-white/5 backdrop-blur"
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              <span className="text-lg font-bold text-[#f7c948]">IM</span>
-            </motion.div>
+    <motion.div
+  whileHover={{ scale: 1.08 }}
+  transition={{ duration: 0.3 }}
+  className="flex h-12 w-12 items-center justify-center rounded-full overflow-hidden bg-white shadow-lg"
+>
+  <img
+    src="/images/rotary-logo.png"
+    alt="Rotary International"
+    className="h-full w-full object-contain"
+  />
+</motion.div>
 
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em]">
