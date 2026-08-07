@@ -4,7 +4,9 @@ const path = require("path");
 
 const authRoutes = require("./src/routes/auth.routes");
 const eventRoutes = require("./src/routes/event.routes");
-const attendanceRoutes = require("./src/routes/attendance.routes");
+const attendanceRoutes = require(
+  "./src/routes/attendance.routes"
+);
 const membershipFeeRoutes = require(
   "./src/routes/membershipFee.routes"
 );
@@ -30,6 +32,7 @@ app.use(
 
 app.use(express.json());
 
+// API
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/attendance", attendanceRoutes);
@@ -37,6 +40,7 @@ app.use("/api/fees", membershipFeeRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/profile", profileRoutes);
 
+// FRONTEND REACT
 const clientDistPath = path.join(
   __dirname,
   "../client/dist"
@@ -44,12 +48,14 @@ const clientDistPath = path.join(
 
 app.use(express.static(clientDistPath));
 
-app.get("*", (req, res) => {
+// React Router fallback - compatibil Express 5
+app.get("/{*splat}", (req, res) => {
   res.sendFile(
     path.join(clientDistPath, "index.html")
   );
 });
 
+// PORT RENDER
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, "0.0.0.0", () => {
