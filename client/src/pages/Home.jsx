@@ -48,6 +48,50 @@ const reveal = {
   },
 };
 
+
+const boardMembers = [
+  {
+    name: "Todoran Ioana",
+    role: "Președinte",
+    photo: "/images/Todoran Ioana Presedinte.jpg",
+  },
+  {
+    name: "Şandor Bogdan",
+    role: "Past President",
+    photo: "/images/Şandor Bogdan Past President.jpg",
+  },
+  {
+    name: "Roiu Teodora",
+    role: "Vicepreședinte",
+    photo: "/images/Roiu Teodora Vicepresedinte.jpg",
+  },
+  {
+    name: "Mărginean Ecaterina-Maria",
+    role: "Secretar",
+    photo: "/images/Mărginean Ecaterina-Maria Secretar.jpg",
+  },
+  {
+    name: "Pap Denis",
+    role: "Director PR",
+    photo: "/images/Pap Denis Director PR.jpg",
+  },
+  {
+    name: "Bumbac Delia",
+    role: "Director HR",
+    photo: "/images/Bumbac Delia Director HR.jpg",
+  },
+  {
+    name: "Hoța Miruna Mara",
+    role: "Project Manager",
+    photo: "/images/Hoța Miruna Mara Project Manager.jpg",
+  },
+  {
+    name: "Bordianu Patrick",
+    role: "Trezorier",
+    photo: "/images/Bordianu Patrick Trezorier.jpg",
+  },
+];
+
 function TiltCard({ children, className = "" }) {
   const ref = useRef(null);
 
@@ -88,6 +132,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [boardOpen, setBoardOpen] = useState(false);
 
   const heroRef = useRef(null);
   const storyRef = useRef(null);
@@ -547,12 +592,7 @@ export default function Home() {
           <div className="grid gap-5">
             <button
               type="button"
-              onClick={() =>
-                setSelectedImage({
-                  src: "/images/interact-board-indoor.jpg",
-                  alt: "Portretul boardului",
-                })
-              }
+              onClick={() => setBoardOpen(true)}
               className="text-left"
             >
               <TiltCard className="group relative overflow-hidden rounded-[2rem] bg-[#e9e7e2]">
@@ -665,6 +705,79 @@ export default function Home() {
         </div>
       </section>
 
+
+      {boardOpen && (
+        <div
+          className="fixed inset-0 z-[210] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm"
+          onClick={() => setBoardOpen(false)}
+        >
+          <div
+            className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] bg-[#f4f1eb] p-6 shadow-2xl sm:p-8"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setBoardOpen(false)}
+              className="sticky top-0 z-20 ml-auto flex h-11 w-11 items-center justify-center rounded-full bg-[#07172f] text-xl font-bold text-white shadow-lg transition hover:scale-105"
+              aria-label="Închide boardul"
+            >
+              ×
+            </button>
+
+            <div className="mb-8 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.35em] text-[#17458f]">
+                Interact Maris
+              </p>
+
+              <h2
+                className="mt-3 text-4xl font-medium text-[#07172f] sm:text-5xl"
+                style={{ fontFamily: '"Playfair Display", serif' }}
+              >
+                Board 2026
+              </h2>
+
+              <p className="mx-auto mt-4 max-w-xl text-slate-600">
+                Echipa de conducere Interact Maris
+              </p>
+            </div>
+
+            <div className="space-y-7">
+              {boardMembers.map((member, index) => (
+                <motion.article
+                  key={`${member.name}-${member.role}`}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.06 }}
+                  className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-lg"
+                >
+                  <div className="flex flex-col items-center p-5 sm:p-7">
+                    <div className="w-full max-w-md overflow-hidden rounded-[1.4rem] bg-[#e9e7e2]">
+                      <img
+                        src={member.photo}
+                        alt={`${member.name} - ${member.role}`}
+                        className="h-auto max-h-[520px] w-full object-contain object-center"
+                      />
+                    </div>
+
+                    <div className="mt-5 text-center">
+                      <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#17458f]">
+                        {member.role}
+                      </p>
+
+                      <h3
+                        className="mt-2 text-2xl font-semibold text-[#07172f]"
+                        style={{ fontFamily: '"Playfair Display", serif' }}
+                      >
+                        {member.name}
+                      </h3>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedImage && (
         <div

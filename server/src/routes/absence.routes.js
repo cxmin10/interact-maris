@@ -7,35 +7,29 @@ const {
 } = require("../middleware/auth.middleware");
 
 const {
-  getUsers,
-  toggleUser,
-  deleteUser,
-  changeUserPassword,
-} = require("../controllers/user.controller");
+  addAbsence,
+  getUserAbsences,
+  deleteAbsence,
+} = require("../controllers/absence.controller");
 
 router.get(
-  "/",
+  "/user/:userId",
   requireAuth,
-  getUsers
+  getUserAbsences
 );
 
-router.put(
-  "/:id/toggle",
+router.post(
+  "/user/:userId",
   requireAuth,
   requireAdmin,
-  toggleUser
+  addAbsence
 );
 
 router.delete(
   "/:id",
   requireAuth,
   requireAdmin,
-  deleteUser
-);
-router.put(
-  "/:id/password",
-  requireAuth,
-  changeUserPassword
+  deleteAbsence
 );
 
 module.exports = router;

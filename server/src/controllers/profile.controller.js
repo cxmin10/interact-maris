@@ -3,13 +3,40 @@ const prisma = require("../prisma");
 // Afișează profilul
 const getProfile = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id)) {
+      return res.status(400).json({
+        message: "ID utilizator invalid.",
+      });
+    }
 
     const user = await prisma.user.findUnique({
       where: {
-        id: Number(id),
+        id,
       },
-      include: {
+
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        isActive: true,
+        isDeleted: true,
+
+        phone: true,
+        birthDate: true,
+        school: true,
+        position: true,
+        address: true,
+        instagram: true,
+        facebook: true,
+        photo: true,
+        description: true,
+
+        createdAt: true,
+
         attendances: {
           include: {
             event: true,
@@ -18,6 +45,7 @@ const getProfile = async (req, res) => {
             registeredAt: "desc",
           },
         },
+
         fees: {
           orderBy: [
             {
@@ -37,11 +65,11 @@ const getProfile = async (req, res) => {
       });
     }
 
-    res.json(user);
+    return res.json(user);
   } catch (error) {
-    console.error(error);
+    console.error("GET PROFILE ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Eroare la încărcarea profilului.",
     });
   }
@@ -50,7 +78,13 @@ const getProfile = async (req, res) => {
 // Actualizare profil
 const updateProfile = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id)) {
+      return res.status(400).json({
+        message: "ID utilizator invalid.",
+      });
+    }
 
     const {
       firstName,
@@ -65,10 +99,23 @@ const updateProfile = async (req, res) => {
       description,
     } = req.body;
 
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({
+        message: "Utilizatorul nu există.",
+      });
+    }
+
     const user = await prisma.user.update({
       where: {
-        id: Number(id),
+        id,
       },
+
       data: {
         firstName,
         lastName,
@@ -81,13 +128,38 @@ const updateProfile = async (req, res) => {
         photo,
         description,
       },
+
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        isActive: true,
+        isDeleted: true,
+
+        phone: true,
+        birthDate: true,
+        school: true,
+        position: true,
+        address: true,
+        instagram: true,
+        facebook: true,
+        photo: true,
+        description: true,
+
+        createdAt: true,
+      },
     });
 
-    res.json(user);
+    return res.json({
+      message: "Profilul a fost actualizat.",
+      user,
+    });
   } catch (error) {
-    console.error(error);
+    console.error("UPDATE PROFILE ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Eroare la actualizarea profilului.",
     });
   }

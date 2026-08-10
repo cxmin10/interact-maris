@@ -18,6 +18,11 @@ enum AttendanceStatus {
   EXCUSED
 }
 
+enum AbsenceType {
+  EXCUSED
+  UNEXCUSED
+}
+
 model User {
   id          Int      @id @default(autoincrement())
 
@@ -28,8 +33,8 @@ model User {
 
   role        Role     @default(MEMBER)
   isActive    Boolean  @default(true)
- isDeleted Boolean @default(false)
-  // Profil
+  isDeleted   Boolean  @default(false)
+
   phone       String?
   birthDate   DateTime?
   school      String?
@@ -44,8 +49,9 @@ model User {
 
   attendances Attendance[]
   fees        MembershipFee[]
-  
+  absences    Absence[]
 }
+
 model Event {
   id          Int      @id @default(autoincrement())
   title       String
@@ -58,20 +64,29 @@ model Event {
 }
 
 model Attendance {
-  id       Int                @id @default(autoincrement())
-  status   AttendanceStatus
+  id           Int              @id @default(autoincrement())
+  status       AttendanceStatus
 
-  reason        String?
-  registeredAt  DateTime @default(now())
-  cancelledAt   DateTime?
+  reason       String?
+  registeredAt DateTime         @default(now())
+  cancelledAt  DateTime?
 
-  userId   Int
-  eventId  Int
+  userId       Int
+  eventId      Int
 
-  user     User  @relation(fields: [userId], references: [id])
-  event    Event @relation(fields: [eventId], references: [id])
+  user         User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event        Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([userId, eventId])
+}
+
+model Absence {
+  id        Int         @id @default(autoincrement())
+  type      AbsenceType
+  createdAt DateTime    @default(now())
+
+  userId    Int
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model MembershipFee {
@@ -84,9 +99,10 @@ model MembershipFee {
   dueDate   DateTime?
   createdAt DateTime  @default(now())
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
 model ClubSetting {
   id                  Int      @id @default(1)
   membershipFeeAmount Float    @default(0)
