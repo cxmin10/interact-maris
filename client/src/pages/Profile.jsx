@@ -652,6 +652,22 @@ export default function Profile() {
                       + Absență nemotivată
                     </button>
 
+                    <button
+                      type="button"
+                      disabled={
+                        absenceLoading ||
+                        absences.length === 0
+                      }
+                      onClick={() =>
+                        setDeletingAbsence(
+                          absences[0]
+                        )
+                      }
+                      className="rounded-xl bg-slate-700 px-6 py-3 font-bold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      − Șterge ultima absență
+                    </button>
+
                   </div>
 
                 </section>
