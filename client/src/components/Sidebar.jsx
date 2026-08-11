@@ -1,10 +1,18 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { Menu, X, LogOut } from "lucide-react";
 
 export default function Sidebar() {
   const location = useLocation();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const navigate = useNavigate();
+
+  const user = JSON.parse(
+    localStorage.getItem("user") || "null"
+  );
 
   const [open, setOpen] = useState(false);
 
@@ -53,22 +61,46 @@ export default function Sidebar() {
     setOpen(false);
   }
 
+  function logout() {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+
+    setOpen(false);
+
+    navigate("/login");
+  }
+
   return (
     <>
-      {/* BUTON MOBIL */}
+      {/* BUTON HAMBURGER - DOAR PE TELEFON */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed left-4 top-2 z-[70] flex h-12 w-12 items-center justify-center rounded-xl bg-blue-950 text-white shadow-xl lg:hidden"
+        className="
+          fixed left-4 top-2 z-[70]
+          flex h-12 w-12
+          items-center justify-center
+          rounded-xl
+          bg-blue-950
+          text-white
+          shadow-xl
+          lg:hidden
+        "
         aria-label="Deschide meniul"
       >
         <Menu size={26} />
       </button>
 
-      {/* FUNDAL ÎNCHIS PE MOBIL */}
+      {/* FUNDAL ÎNTUNECAT PE TELEFON */}
       {open && (
         <div
-          className="fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm lg:hidden"
+          className="
+            fixed inset-0
+            z-[80]
+            bg-black/50
+            backdrop-blur-sm
+            lg:hidden
+          "
           onClick={closeMenu}
         />
       )}
@@ -78,9 +110,14 @@ export default function Sidebar() {
         className={`
           fixed left-0 top-0 z-[90]
           flex h-screen w-64 flex-col
-          bg-blue-950 text-white shadow-xl
-          transition-transform duration-300
+          bg-blue-950
+          text-white
+          shadow-xl
+          transition-transform
+          duration-300
+
           lg:translate-x-0
+
           ${
             open
               ? "translate-x-0"
@@ -88,6 +125,7 @@ export default function Sidebar() {
           }
         `}
       >
+        {/* HEADER */}
         <div className="flex items-start justify-between border-b border-white/10 p-6">
           <Link
             to={
@@ -106,23 +144,33 @@ export default function Sidebar() {
             </p>
           </Link>
 
-          {/* X DOAR PE MOBIL */}
+          {/* X DOAR PE TELEFON */}
           <button
             type="button"
             onClick={closeMenu}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white lg:hidden"
+            className="
+              flex h-10 w-10
+              items-center justify-center
+              rounded-xl
+              bg-white/10
+              text-white
+              lg:hidden
+            "
             aria-label="Închide meniul"
           >
             <X size={22} />
           </button>
         </div>
 
+        {/* MENIU */}
         <nav className="flex-1 overflow-y-auto p-4">
           {menu.map((item) => {
             const active =
               location.pathname === item.path ||
               (item.path === "/events" &&
-                location.pathname.startsWith("/events"));
+                location.pathname.startsWith(
+                  "/events"
+                ));
 
             return (
               <Link
@@ -141,6 +189,7 @@ export default function Sidebar() {
           })}
         </nav>
 
+        {/* UTILIZATOR + LOGOUT */}
         <div className="border-t border-white/10 p-4">
           <p className="truncate font-semibold">
             {user.firstName} {user.lastName}
@@ -151,6 +200,26 @@ export default function Sidebar() {
               ? "Administrator"
               : "Membru"}
           </p>
+
+          <button
+            type="button"
+            onClick={logout}
+            className="
+              mt-4 flex w-full
+              items-center justify-center
+              gap-2
+              rounded-xl
+              bg-red-600
+              px-4 py-3
+              font-semibold
+              text-white
+              transition
+              hover:bg-red-700
+            "
+          >
+            <LogOut size={19} />
+            Logout
+          </button>
         </div>
       </aside>
     </>
