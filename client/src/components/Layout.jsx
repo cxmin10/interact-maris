@@ -12,13 +12,25 @@ export default function Layout({ children }) {
     <>
       <Navbar />
 
-      <div className="flex">
-        <Sidebar />
+      <Sidebar />
 
-        <main className="ml-64 w-full min-h-screen bg-slate-100 p-8">
-          {children}
-        </main>
-      </div>
+      <main
+        className="
+          min-h-screen
+          w-full
+          bg-slate-100
+          p-4
+          pt-20
+          sm:p-6
+          sm:pt-20
+          lg:ml-64
+          lg:w-[calc(100%-16rem)]
+          lg:p-8
+          lg:pt-8
+        "
+      >
+        {children}
+      </main>
     </>
   );
 }
