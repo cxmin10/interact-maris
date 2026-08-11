@@ -25,6 +25,12 @@ export default function Profile() {
   const [saving, setSaving] =
     useState(false);
 
+  const [photoUrl, setPhotoUrl] =
+    useState("");
+
+  const [savingPhoto, setSavingPhoto] =
+    useState(false);
+
   const [
     absenceLoading,
     setAbsenceLoading,
@@ -68,6 +74,7 @@ export default function Profile() {
         profileResponse.data;
 
       setUser(profile);
+      setPhotoUrl(profile.photo || "");
 
       setForm({
         firstName:
@@ -198,6 +205,61 @@ export default function Profile() {
     }
   }
 
+  async function savePhotoUrl() {
+    const cleanUrl = photoUrl.trim();
+
+    if (
+      cleanUrl &&
+      !cleanUrl.startsWith("https://") &&
+      !cleanUrl.startsWith("http://")
+    ) {
+      setMessage(
+        "Linkul fotografiei trebuie să înceapă cu http:// sau https://"
+      );
+      return;
+    }
+
+    try {
+      setSavingPhoto(true);
+      setMessage("");
+
+      await api.put(
+        `/profile/${id}/photo`,
+        {
+          photo: cleanUrl,
+        }
+      );
+
+      setUser((current) => ({
+        ...current,
+        photo: cleanUrl,
+      }));
+
+      setForm((current) => ({
+        ...current,
+        photo: cleanUrl,
+      }));
+
+      setMessage(
+        cleanUrl
+          ? "Fotografia de profil a fost actualizată."
+          : "Fotografia de profil a fost eliminată."
+      );
+    } catch (error) {
+      console.error(
+        "SAVE PHOTO URL ERROR:",
+        error
+      );
+
+      setMessage(
+        error.response?.data?.message ||
+          "Fotografia nu a putut fi actualizată."
+      );
+    } finally {
+      setSavingPhoto(false);
+    }
+  }
+
   async function addAbsence(type) {
     if (!isAdmin) {
       return;
@@ -312,6 +374,11 @@ export default function Profile() {
     excusedCount +
     unexcusedCount;
 
+  const canChangePhoto =
+    isAdmin ||
+    Number(currentUser?.id) ===
+      Number(id);
+
   const canChangePassword =
     isAdmin ||
     Number(currentUser?.id) ===
@@ -360,6 +427,53 @@ export default function Profile() {
               alt={`${user.firstName} ${user.lastName}`}
               className="-mt-20 h-40 w-40 rounded-full border-8 border-white object-cover shadow-xl"
             />
+
+            {canChangePhoto && (
+              <div className="mt-4 max-w-2xl rounded-2xl bg-gray-50 p-5">
+                <label className="mb-2 block font-semibold text-gray-700">
+                  Link fotografie profil
+                </label>
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <input
+                    type="url"
+                    value={photoUrl}
+                    onChange={(event) =>
+                      setPhotoUrl(event.target.value)
+                    }
+                    placeholder="https://exemplu.com/poza.jpg"
+                    className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white p-4 outline-none focus:border-blue-600"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={savePhotoUrl}
+                    disabled={savingPhoto}
+                    className="rounded-xl bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:opacity-50"
+                  >
+                    {savingPhoto
+                      ? "Se salvează..."
+                      : "Salvează poza"}
+                  </button>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <p className="text-sm text-gray-500">
+                    Introdu un link direct către imagine.
+                  </p>
+
+                  {user.photo && (
+                    <button
+                      type="button"
+                      onClick={() => setPhotoUrl("")}
+                      className="text-sm font-semibold text-red-600 hover:text-red-700"
+                    >
+                      Elimină linkul
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="mt-6 flex flex-wrap items-start justify-between gap-5">
 
@@ -468,28 +582,6 @@ export default function Profile() {
                     />
                   </div>
 
-                </div>
-
-                <div>
-                  <label className="mb-2 block font-semibold text-gray-700">
-                    URL fotografie
-                  </label>
-
-                  <input
-                    value={
-                      form.photo
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      updateForm(
-                        "photo",
-                        event.target.value
-                      )
-                    }
-                    placeholder="https://..."
-                    className="w-full rounded-xl border border-gray-300 bg-white p-4 outline-none focus:border-blue-600"
-                  />
                 </div>
 
                 <div>
