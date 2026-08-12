@@ -161,7 +161,7 @@ export default function Home() {
 
   const storyImageY = useTransform(storyProgress, [0, 1], [-90, 90]);
   const storyTextY = useTransform(storyProgress, [0, 1], [90, -40]);
-  const orbitRotate = useTransform(smoothProgress, [0, 1], [0, 220]);
+
 
   useEffect(() => {
     function handleScroll() {
@@ -317,12 +317,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-[#07172f]/35 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_30%,rgba(23,69,143,0.42),transparent_42%)]" />
 
-        <motion.div
-          className="absolute -right-24 top-16 h-80 w-80 rounded-full border border-white/10"
-          style={{ rotate: orbitRotate }}
-        >
-          <div className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 rounded-full bg-[#f7c948] shadow-[0_0_30px_#f7c948]" />
-        </motion.div>
+        
 
         <motion.div
           className="relative z-10 mx-auto w-full max-w-[1500px] px-6 pt-28 lg:px-12"
