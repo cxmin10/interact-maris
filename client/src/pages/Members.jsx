@@ -30,9 +30,54 @@ export default function Members() {
       setMessage("");
 
       const response = await api.get("/users");
+      const loadedUsers = response.data || [];
 
-      setUsers(response.data);
+      const usersWithAbsences = await Promise.all(
+        loadedUsers.map(async (user) => {
+          try {
+            const absencesResponse = await api.get(
+              `/absences/user/${user.id}`
+            );
+
+            const userAbsences =
+              absencesResponse.data || [];
+
+            const excused = userAbsences.filter(
+              (absence) =>
+                absence.type === "EXCUSED"
+            ).length;
+
+            const unexcused = userAbsences.filter(
+              (absence) =>
+                absence.type === "UNEXCUSED"
+            ).length;
+
+            return {
+              ...user,
+              excused,
+              absences: unexcused,
+              totalAbsences: excused + unexcused,
+            };
+          } catch (absenceError) {
+            console.error(
+              `ABSENCES USER ${user.id} ERROR:`,
+              absenceError
+            );
+
+            return {
+              ...user,
+              excused: 0,
+              absences: 0,
+              totalAbsences: 0,
+            };
+          }
+        })
+      );
+
+      setUsers(usersWithAbsences);
     } catch (error) {
+      console.error("LOAD USERS ERROR:", error);
+
       setMessage(
         error.response?.data?.message ||
           "Membrii nu au putut fi încărcați."
